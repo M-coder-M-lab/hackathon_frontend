@@ -325,11 +325,11 @@ function App() {
       </div>
 
       <div>
-        {posts.map((post) => (
+        {(posts || []).map((post) => (
           <div key={post.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
             <p>{post.content}</p>
             <p>いいね: {post.likes}</p>
-            <div>
+          </div>
               <strong>リプライ:</strong>
               {(post.replies || []).map((reply) => (
               <p key={reply.id} style={{ marginLeft: '1em' }}>- {reply.content}</p>
