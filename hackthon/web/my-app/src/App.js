@@ -216,5 +216,6 @@ const handleReply = async (postId) => {
     </div>
   </div>
 );
+}
 
 export default App;
