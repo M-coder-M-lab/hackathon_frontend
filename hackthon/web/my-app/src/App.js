@@ -96,7 +96,6 @@ function App() {
   const fetchPosts = async () => {
   try {
     const res = await fetch(`${API_BASE}/posts`);
-    console.log(res.json())
     if (!res.ok) throw new Error('投稿取得エラー');
     const data = await res.json();
     setPosts(data);
