@@ -277,25 +277,29 @@ function App() {
     setPosts(data);
   };
 
-  const handlePost = async () => {
-    await fetch(`${API_BASE}/posts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: user.id, content: postContent })
-    });
-    setPostContent('');
-    fetchPosts();
-  };
+const handlePost = async () => {
+  if (!postContent.trim()) return;
 
-  const handleReply = async (postId) => {
-    await fetch(`${API_BASE}/replies`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ post_id: postId, user_id: user.id, content: replyContent[postId] })
-    });
-    setReplyContent((prev) => ({ ...prev, [postId]: '' }));
-    fetchPosts();
-  };
+  await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/posts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uid: user.uid, content: postContent }) // user_id ではなく uid を送る
+  });
+  setPostContent('');
+  fetchPosts();
+};
+
+
+const handleReply = async (postId) => {
+  await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/replies`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uid: user.uid, post_id: postId, content: replyContent[postId] })
+  });
+  setReplyContent((prev) => ({ ...prev, [postId]: '' }));
+  fetchPosts();
+};
+
 
   const handleSummary = async (postId) => {
     const res = await fetch(`${API_BASE}/summary/${postId}`);
