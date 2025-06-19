@@ -16,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const API_URL = 'REACT_APP_API_URL/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 function App() {
   const [user, setUser] = useState(null);
@@ -33,29 +33,29 @@ function App() {
     }
   }, []);
 
-const handleLogin = async () => {
-  // ...
-  try {
-    // ...
-    const res = await fetch(`${API_URL}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid, email, username })
-    });
+  const handleLogin = async () => {
+    const email = prompt('メールアドレスを入力');
+    const password = prompt('パスワードを入力');
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const { uid, displayName } = result.user;
+      const username = displayName || email;
 
-    // Check if the response was successful (e.g., status 2xx)
-    if (!res.ok) {
-      const errorText = await res.text(); // Get raw text to help debug server errors
-      throw new Error(`HTTP error! status: ${res.status}, response: ${errorText}`);
+      const res = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, email, username })
+      });
+      const data = await res.json();
+      const newUser = { id: data.user_id, uid, email, username };
+      setUser(newUser);
+      localStorage.setItem('user', JSON.stringify(newUser));
+      fetchPosts();
+    } catch (error) {
+      console.error('ログイン失敗:', error);
+      alert('ログインに失敗しました。');
     }
-
-    const data = await res.json();
-    // ...
-  } catch (error) {
-    console.error('ログイン失敗:', error);
-    alert('ログインに失敗しました: ' + error.message); // Provide more specific feedback
-  }
-};
+  };
 
   const handleRegister = async () => {
     const email = prompt('登録するメールアドレスを入力');
@@ -159,4 +159,3 @@ const handleLogin = async () => {
 }
 
 export default App;
-
