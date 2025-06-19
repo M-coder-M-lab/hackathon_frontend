@@ -2,6 +2,19 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
+// 追加でインポート
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+
+// ログアウト関数を追加
+const handleLogout = async () => {
+  try {
+    await signOut(auth);
+    setUser(null);
+    localStorage.removeItem('user');
+  } catch (error) {
+    console.error("ログアウト失敗:", error);
+  }
+};
 
 const firebaseConfig = {
   apiKey: "AIzaSyBQ4L3nC0GJtsy1SllH4x3I5yInEfpMyc0",
@@ -124,7 +137,7 @@ function App() {
   return (
     <div className="App">
       <h1>ようこそ, {user.username}さん</h1>
-
+      <button onClick={handleLogout}>ログアウト</button>
       <div>
         <textarea
           value={postContent}
