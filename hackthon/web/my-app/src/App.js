@@ -1,5 +1,3 @@
-App.js
-
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
@@ -18,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const API_URL = 'http://localhost:8080/api';
+const API_URL = 'REACT_APP_API_URL/api';
 
 function App() {
   const [user, setUser] = useState(null);
