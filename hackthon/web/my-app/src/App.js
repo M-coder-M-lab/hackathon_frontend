@@ -119,7 +119,7 @@ const handlePost = async () => {
 
     if (!res.ok) throw new Error('投稿に失敗しました');
 
-    setPostContent('');
+    setPostContent('res.content');
     await fetchPosts(); // ← 忘れず「await」する
   } catch (error) {
     console.error('投稿エラー:', error);
