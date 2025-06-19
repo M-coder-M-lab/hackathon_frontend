@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword , signOut } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
 // 追加でインポート
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 
 // ログアウト関数を追加
 const handleLogout = async () => {
