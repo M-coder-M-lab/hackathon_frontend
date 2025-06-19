@@ -272,22 +272,38 @@ function App() {
   };
 
   const fetchPosts = async () => {
+  try {
     const res = await fetch(`${API_BASE}/posts`);
+    if (!res.ok) throw new Error('投稿取得エラー');
     const data = await res.json();
     setPosts(data);
-  };
+  } catch (err) {
+    console.error('投稿取得失敗:', err);
+    setPosts([]); // fallback（またはそのままにする）
+  }
+};
+
 
 const handlePost = async () => {
   if (!postContent.trim()) return;
 
-  await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/posts`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ uid: user.uid, content: postContent }) // user_id ではなく uid を送る
-  });
-  setPostContent('');
-  fetchPosts();
+  try {
+    const res = await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/posts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: user.uid, content: postContent })
+    });
+
+    if (!res.ok) throw new Error('投稿に失敗しました');
+
+    setPostContent('');
+    await fetchPosts(); // ← 忘れず「await」する
+  } catch (error) {
+    console.error('投稿エラー:', error);
+    alert('投稿に失敗しました');
+  }
 };
+
 
 
 const handleReply = async (postId) => {
