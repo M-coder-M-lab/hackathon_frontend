@@ -154,9 +154,10 @@ function App() {
             <p>いいね: {post.likes}</p>
             <div>
               <strong>リプライ:</strong>
-              {post.replies.map((reply) => (
-                <p key={reply.id} style={{ marginLeft: '1em' }}>- {reply.content}</p>
+              {(post.replies || []).map((reply) => (
+              <p key={reply.id} style={{ marginLeft: '1em' }}>- {reply.content}</p>
               ))}
+
             </div>
             <textarea
               value={replyContent[post.id] || ''}
