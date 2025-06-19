@@ -171,6 +171,10 @@
 //       </div>
 //     </div>
 //   );
+// }
+
+// export default App;
+
 
 import React, { useEffect, useState } from 'react';
 import './App.css';
@@ -345,9 +349,6 @@ function App() {
       </div>
     </div>
   );
-}
-
-export default App;
 }
 
 export default App;
