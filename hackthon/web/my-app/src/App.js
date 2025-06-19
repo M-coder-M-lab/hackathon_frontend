@@ -339,7 +339,7 @@ const handleReply = async (postId) => {
         <textarea
           value={postContent}
           onChange={(e) => setPostContent(e.target.value)}
-          placeholder="新しい投稿..."
+          placeholder="新しい投稿"
         ></textarea>
         <button onClick={handlePost}>投稿</button>
       </div>
