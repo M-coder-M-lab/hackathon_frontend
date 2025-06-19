@@ -334,7 +334,7 @@ function App() {
               {(post.replies || []).map((reply) => (
               <p key={reply.id} style={{ marginLeft: '1em' }}>- {reply.content}</p>
               ))}
-            </div> {/* 「リプライ」セクションの閉じdiv */}
+            </div> 
             <textarea
               value={replyContent[post.id] || ''}
               onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
@@ -343,7 +343,7 @@ function App() {
             <button onClick={() => handleReply(post.id)}>リプライ送信</button>
             <button onClick={() => handleSummary(post.id)}>要約取得</button>
             {summary[post.id] && <p><strong>要約:</strong> {summary[post.id]}</p>}
-          </div> {/* これが各投稿アイテムの単一の親divです。 */}
+          </div>
         ))}
       </div>
     </div>
