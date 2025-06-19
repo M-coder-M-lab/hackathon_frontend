@@ -346,7 +346,6 @@ function App() {
             {summary[post.id] && <p><strong>要約:</strong> {summary[post.id]}</p>}
           </div>
         ))}
-      </div>
     </div>
   );
 }
