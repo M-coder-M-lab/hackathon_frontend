@@ -16,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const API_URL = process.env.REACT_APP_API_URL;
+//const API_URL = process.env.REACT_APP_API_URL;
 
 function App() {
   const [user, setUser] = useState(null);
@@ -41,7 +41,7 @@ function App() {
       const { uid, displayName } = result.user;
       const username = displayName || email;
 
-      const res = await fetch(`${API_URL}/login`, {
+      const res = await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid, email, username })
@@ -65,7 +65,7 @@ function App() {
       const { uid } = result.user;
       const username = email;
 
-      const res = await fetch(`${API_URL}/login`, {
+      const res = await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid, email, username })
@@ -82,13 +82,13 @@ function App() {
   };
 
   const fetchPosts = async () => {
-    const res = await fetch(`${API_URL}/posts`);
+    const res = await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/posts`);
     const data = await res.json();
     setPosts(data);
   };
 
   const handlePost = async () => {
-    await fetch(`${API_URL}/posts`, {
+    await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/posts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: user.id, content: postContent })
@@ -98,7 +98,7 @@ function App() {
   };
 
   const handleReply = async (postId) => {
-    await fetch(`${API_URL}/replies`, {
+    await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/replies`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ post_id: postId, user_id: user.id, content: replyContent[postId] })
@@ -108,7 +108,7 @@ function App() {
   };
 
   const handleSummary = async (postId) => {
-    const res = await fetch(`${API_URL}/summary/${postId}`);
+    const res = await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/summary/${postId}`);
     const data = await res.json();
     setSummary((prev) => ({ ...prev, [postId]: data.summary }));
   };
