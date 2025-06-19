@@ -325,29 +325,29 @@ function App() {
       </div>
 
       <div>
-        {(posts || []).map((post) => (
-          <div key={post.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
-            <p>{post.content}</p>
-            <p>いいね: {post.likes}</p>
-          </div>
-              <strong>リプライ:</strong>
-              {(post.replies || []).map((reply) => (
-              <p key={reply.id} style={{ marginLeft: '1em' }}>- {reply.content}</p>
-              ))}
-
-            </div>
-            <textarea
-              value={replyContent[post.id] || ''}
-              onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
-              placeholder="リプライ..."
-            ></textarea>
-            <button onClick={() => handleReply(post.id)}>リプライ送信</button>
-            <button onClick={() => handleSummary(post.id)}>要約取得</button>
-            {summary[post.id] && <p><strong>要約:</strong> {summary[post.id]}</p>}
-          </div>
-        ))}
-    </div>
-  );
+        {(posts || []).map((post) => (
+          <div key={post.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
+            <p>{post.content}</p>
+            <p>いいね: {post.likes}</p>
+            <div> {/* このdivが「リプライ」セクションを正しく囲んでいます */}
+              <strong>リプライ:</strong>
+              {(post.replies || []).map((reply) => (
+              <p key={reply.id} style={{ marginLeft: '1em' }}>- {reply.content}</p>
+              ))}
+            </div> {/* 「リプライ」セクションの閉じdiv */}
+            <textarea
+              value={replyContent[post.id] || ''}
+              onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
+              placeholder="リプライ..."
+            ></textarea>
+            <button onClick={() => handleReply(post.id)}>リプライ送信</button>
+            <button onClick={() => handleSummary(post.id)}>要約取得</button>
+            {summary[post.id] && <p><strong>要約:</strong> {summary[post.id]}</p>}
+          </div> {/* これが各投稿アイテムの単一の親divです。 */}
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default App;
