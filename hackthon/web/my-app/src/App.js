@@ -96,7 +96,7 @@ function App() {
   const fetchPosts = async () => {
   try {
     const res = await fetch(`${API_BASE}/posts`);
-    console.log(res)
+    console.log(res.json())
     if (!res.ok) throw new Error('投稿取得エラー');
     const data = await res.json();
     setPosts(data);
@@ -119,7 +119,7 @@ const handlePost = async () => {
 
     if (!res.ok) throw new Error('投稿に失敗しました');
 
-    setPostContent(res.content);
+    setPostContent('');
     await fetchPosts(); // ← 忘れず「await」する
   } catch (error) {
     console.error('投稿エラー:', error);
