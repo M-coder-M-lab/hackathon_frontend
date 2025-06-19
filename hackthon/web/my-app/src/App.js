@@ -7,7 +7,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBQ4L3nC0GJtsy1SllH4x3I5yInEfpMyc0",
   authDomain: "hackathon-b05e3.firebaseapp.com",
   projectId: "hackathon-b05e3",
-  storageBucket: "hackathon-b05e3.firebasestorage.app",
+  storageBucket: "hackathon-b05e3.appspot.com",
   messagingSenderId: "293078170583",
   appId: "1:293078170583:web:21275a789ba589f5d62992",
   measurementId: "G-7GCR8BHD46"
@@ -16,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-//const API_URL = process.env.REACT_APP_API_URL;
+const API_BASE = 'https://hackthon-467321075767.europe-west1.run.app/api';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -41,7 +41,7 @@ function App() {
       const { uid, displayName } = result.user;
       const username = displayName || email;
 
-      const res = await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/login`, {
+      const res = await fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid, email, username })
@@ -65,7 +65,7 @@ function App() {
       const { uid } = result.user;
       const username = email;
 
-      const res = await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/login`, {
+      const res = await fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid, email, username })
@@ -82,13 +82,13 @@ function App() {
   };
 
   const fetchPosts = async () => {
-    const res = await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/posts`);
+    const res = await fetch(`${API_BASE}/posts`);
     const data = await res.json();
     setPosts(data);
   };
 
   const handlePost = async () => {
-    await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/posts`, {
+    await fetch(`${API_BASE}/posts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: user.id, content: postContent })
@@ -98,7 +98,7 @@ function App() {
   };
 
   const handleReply = async (postId) => {
-    await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/replies`, {
+    await fetch(`${API_BASE}/replies`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ post_id: postId, user_id: user.id, content: replyContent[postId] })
@@ -108,21 +108,23 @@ function App() {
   };
 
   const handleSummary = async (postId) => {
-    const res = await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/summary/${postId}`);
+    const res = await fetch(`${API_BASE}/summary/${postId}`);
     const data = await res.json();
     setSummary((prev) => ({ ...prev, [postId]: data.summary }));
   };
 
   if (!user) return (
     <div>
-      <button onClick={handleLogin}>メールアドレスでログイン</button>
-      <button onClick={handleRegister}>新規ユーザー登録</button>
+      <h2>ログイン / 新規登録</h2>
+      <button onClick={handleLogin}>ログイン</button>
+      <button onClick={handleRegister}>新規登録</button>
     </div>
   );
 
   return (
     <div className="App">
       <h1>ようこそ, {user.username}さん</h1>
+
       <div>
         <textarea
           value={postContent}
