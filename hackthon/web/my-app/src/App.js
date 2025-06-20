@@ -5,19 +5,19 @@ import { initializeApp } from 'firebase/app';
 // 追加でインポート
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBQ4L3nC0GJtsy1SllH4x3I5yInEfpMyc0",
-  authDomain: "hackathon-b05e3.firebaseapp.com",
-  projectId: "hackathon-b05e3",
-  storageBucket: "hackathon-b05e3.appspot.com",
-  messagingSenderId: "293078170583",
-  appId: "1:293078170583:web:21275a789ba589f5d62992",
-  measurementId: "G-7GCR8BHD46"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const API_BASE = 'https://hackthon-467321075767.europe-west1.run.app/api';
+const API_BASE = process.env.REACT_APP_API_BASE;
 
 function App() {
   const [user, setUser] = useState(null);
