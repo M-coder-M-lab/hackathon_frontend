@@ -105,6 +105,21 @@ function App() {
   }
 };
 
+const handleLike = async (postId) => {
+  try {
+    const res = await fetch(`${API_BASE}/likes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: user.uid, post_id: postId })
+    });
+    if (!res.ok) throw new Error('いいねに失敗しました');
+    await fetchPosts(); // いいね後に投稿一覧を更新
+  } catch (err) {
+    console.error('いいねエラー:', err);
+    alert('いいねに失敗しました');
+  }
+};
+
 
 const handlePost = async () => {
   if (!postContent.trim()) return;
@@ -171,7 +186,8 @@ const handleReply = async (postId) => {
            <div key={post.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
              <p>{post.content}</p>
              <p>いいね: {post.likes}</p>
-             <div> {/* このdivが「リプライ」セクションを正しく囲んでいます */}
+             <button onClick={() => handleLike(post.id)}>いいね</button> 
+             <div> 
                <strong>リプライ:</strong>
                {(post.replies || []).map((reply) => (
                <p key={reply.id} style={{ marginLeft: '1em' }}>- {reply.content}</p>
