@@ -125,7 +125,7 @@ const handlePost = async () => {
   if (!postContent.trim()) return;
 
   try {
-    const res = await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/posts`, {
+    const res = await fetch(`${API_BASE}/posts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ uid: user.uid, content: postContent })
@@ -144,7 +144,7 @@ const handlePost = async () => {
 
 
 const handleReply = async (postId) => {
-  await fetch(`https://hackthon-467321075767.europe-west1.run.app/api/replies`, {
+  await fetch(`${API_BASE}/replies`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ uid: user.uid, post_id: postId, content: replyContent[postId] })
