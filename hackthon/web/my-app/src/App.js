@@ -1,247 +1,3 @@
-// import React, { useEffect, useState } from 'react';
-// import './App.css';
-// import {
-//   getAuth,
-//   signInWithEmailAndPassword,
-//   createUserWithEmailAndPassword,
-//   signOut,
-// } from 'firebase/auth';
-// import { initializeApp } from 'firebase/app';
-
-// const firebaseConfig = {
-//   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-//   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-//   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-//   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-//   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-//   appId: process.env.REACT_APP_FIREBASE_APP_ID,
-//   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
-// };
-
-// const app = initializeApp(firebaseConfig);
-// const auth = getAuth(app);
-
-// const API_BASE = process.env.REACT_APP_API_BASE;
-
-// function App() {
-//   const [user, setUser] = useState(null);
-//   const [posts, setPosts] = useState([]);
-//   const [postContent, setPostContent] = useState('');
-//   const [replyContent, setReplyContent] = useState({});
-//   const [summary, setSummary] = useState({});
-//   const [registerEmail, setRegisterEmail] = useState('');
-//   const [registerPassword, setRegisterPassword] = useState('');
-//   const [errorMessage, setErrorMessage] = useState('');
-
-//   const handleLogout = async () => {
-//     try {
-//       await signOut(auth);
-//       setUser(null);
-//       localStorage.removeItem('user');
-//     } catch (error) {
-//       console.error('ログアウト失敗:', error);
-//     }
-//   };
-
-//   useEffect(() => {
-//     const storedUser = JSON.parse(localStorage.getItem('user'));
-//     if (storedUser) {
-//       setUser(storedUser);
-//       fetchPosts();
-//     }
-//   }, []);
-
-//   const handleLogin = async () => {
-//     const email = prompt('メールアドレスを入力');
-//     const password = prompt('パスワードを入力');
-//     try {
-//       const result = await signInWithEmailAndPassword(auth, email, password);
-//       const { uid, displayName } = result.user;
-//       const username = displayName || email;
-
-//       const res = await fetch(`${API_BASE}/login`, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ uid, email, username }),
-//       });
-//       const data = await res.json();
-//       const newUser = { id: data.user_id, uid, email, username };
-//       setUser(newUser);
-//       localStorage.setItem('user', JSON.stringify(newUser));
-//       fetchPosts();
-//     } catch (error) {
-//       console.error('ログイン失敗:', error);
-//       alert('ログインに失敗しました。');
-//     }
-//   };
-
-//   const handleRegisterDirect = async (e) => {
-//     e.preventDefault();
-//     setErrorMessage('');
-
-//     if (registerPassword.length < 6) {
-//       setErrorMessage('パスワードは6文字以上で入力してください。');
-//       return;
-//     }
-
-//     try {
-//       const result = await createUserWithEmailAndPassword(
-//         auth,
-//         registerEmail,
-//         registerPassword
-//       );
-//       const { uid } = result.user;
-//       const username = registerEmail;
-
-//       const res = await fetch(`${API_BASE}/login`, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ uid, email: registerEmail, username }),
-//       });
-//       const data = await res.json();
-//       const newUser = { id: data.user_id, uid, email: registerEmail, username };
-//       setUser(newUser);
-//       localStorage.setItem('user', JSON.stringify(newUser));
-//       fetchPosts();
-//     } catch (error) {
-//       console.error('ユーザー登録失敗:', error);
-//       setErrorMessage('登録に失敗しました。メールアドレスの形式などを確認してください。');
-//     }
-//   };
-
-//   const fetchPosts = async () => {
-//     try {
-//       const res = await fetch(`${API_BASE}/posts`);
-//       if (!res.ok) throw new Error('投稿取得エラー');
-//       const data = await res.json();
-//       setPosts(data);
-//     } catch (err) {
-//       console.error('投稿取得失敗:', err);
-//       setPosts([]);
-//     }
-//   };
-
-//   const handleLike = async (postId) => {
-//     try {
-//       const res = await fetch(`${API_BASE}/likes`, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ uid: user.uid, post_id: postId }),
-//       });
-//       if (!res.ok) throw new Error('いいねに失敗しました');
-//       await fetchPosts();
-//     } catch (err) {
-//       console.error('いいねエラー:', err);
-//       alert('いいねに失敗しました');
-//     }
-//   };
-
-//   const handlePost = async () => {
-//     if (!postContent.trim()) return;
-
-//     try {
-//       const res = await fetch(`${API_BASE}/posts`, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ uid: user.uid, content: postContent }),
-//       });
-
-//       if (!res.ok) throw new Error('投稿に失敗しました');
-
-//       setPostContent('');
-//       await fetchPosts();
-//     } catch (error) {
-//       console.error('投稿エラー:', error);
-//       alert('投稿に失敗しました');
-//     }
-//   };
-
-//   const handleReply = async (postId) => {
-//     await fetch(`${API_BASE}/replies`, {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ uid: user.uid, post_id: postId, content: replyContent[postId] }),
-//     });
-//     setReplyContent((prev) => ({ ...prev, [postId]: '' }));
-//     fetchPosts();
-//   };
-
-//   const handleSummary = async (postId) => {
-//     const res = await fetch(`${API_BASE}/summary/${postId}`);
-//     const data = await res.json();
-//     setSummary((prev) => ({ ...prev, [postId]: data.summary }));
-//   };
-
-//   if (!user) {
-//     return (
-//       <div className="App">
-//         <h2>ログイン または 新規登録</h2>
-//         <form onSubmit={handleRegisterDirect}>
-//           <p>※ パスワードは6文字以上で入力してください</p>
-//           <input
-//             type="email"
-//             placeholder="メールアドレス"
-//             value={registerEmail}
-//             onChange={(e) => setRegisterEmail(e.target.value)}
-//             required
-//           /><br />
-//           <input
-//             type="password"
-//             placeholder="パスワード（6文字以上）"
-//             value={registerPassword}
-//             onChange={(e) => setRegisterPassword(e.target.value)}
-//             required
-//           /><br />
-//           <button type="submit">新規登録</button>
-//         </form>
-//         <button onClick={handleLogin}>ログイン</button>
-//         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="App">
-//       <h1>ようこそ, {user.username}さん</h1>
-//       <button onClick={handleLogout}>ログアウト</button>
-//       <div>
-//         <textarea
-//           value={postContent}
-//           onChange={(e) => setPostContent(e.target.value)}
-//           placeholder="新しい投稿"
-//         ></textarea>
-//         <button onClick={handlePost}>投稿</button>
-//       </div>
-
-//       <div>
-//         {(posts || []).map((post) => (
-//           <div key={post.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
-//             <p>{post.content}</p>
-//             <p>いいね: {post.likes}</p>
-//             <button onClick={() => handleLike(post.id)}>いいね</button>
-//             <div>
-//               <strong>リプライ:</strong>
-//               {(post.replies || []).map((reply) => (
-//                 <p key={reply.id} style={{ marginLeft: '1em' }}>- {reply.content}</p>
-//               ))}
-//             </div>
-//             <textarea
-//               value={replyContent[post.id] || ''}
-//               onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
-//               placeholder="リプライ..."
-//             ></textarea>
-//             <button onClick={() => handleReply(post.id)}>リプライ送信</button>
-//             <button onClick={() => handleSummary(post.id)}>要約取得</button>
-//             {summary[post.id] && <p><strong>要約:</strong> {summary[post.id]}</p>}
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default App;
-
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import {
@@ -353,6 +109,7 @@ function App() {
       await fetchPosts();
     } catch (err) {
       console.error('いいねエラー:', err);
+      alert('いいねに失敗しました');//new!!
     }
   };
 
@@ -369,6 +126,7 @@ function App() {
       await fetchPosts();
     } catch (error) {
       console.error('投稿エラー:', error);
+      alert('投稿に失敗しました');//new!!
     }
   };
 
@@ -383,9 +141,15 @@ function App() {
   };
 
   const handleSummary = async (postId) => {
-    const res = await fetch(`${API_BASE}/summary/${postId}`);
-    const data = await res.json();
-    setSummary((prev) => ({ ...prev, [postId]: data.summary }));
+    try {
+      const res = await fetch(`${API_BASE}/summary/${postId}`);
+      if (!res.ok) throw new Error('要約取得失敗');//new
+      const data = await res.json();
+      setSummary((prev) => ({ ...prev, [postId]: data.summary }));
+    } catch (error) {
+      console.error('要約取得エラー:', error);
+      alert('要約取得に失敗しました');
+    }
   };
 
   if (!user) {
@@ -433,24 +197,24 @@ function App() {
 
       <div>
         {(posts || []).map((post) => (
-          <div key={post.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
+          <div key={post.id} className="post-card">
             <p>{post.content}</p>
             <p>いいね: {post.likes}</p>
             <button onClick={() => handleLike(post.id)}>いいね</button>
             <div>
               <strong>リプライ:</strong>
               {(post.replies || []).map((reply) => (
-                <p key={reply.id} style={{ marginLeft: '1em' }}>- {reply.content}</p>
+                <p key={reply.id} className="reply">- {reply.content}</p>
               ))}
             </div>
             <textarea
               value={replyContent[post.id] || ''}
               onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
               placeholder="リプライ..."
-            ></textarea>
+            />
             <button onClick={() => handleReply(post.id)}>リプライ送信</button>
             <button onClick={() => handleSummary(post.id)}>要約取得</button>
-            {summary[post.id] && <p><strong>要約:</strong> {summary[post.id]}</p>}
+            {summary[post.id] && <p className="summary"><strong>要約:</strong> {summary[post.id]}</p>}
           </div>
         ))}
       </div>
