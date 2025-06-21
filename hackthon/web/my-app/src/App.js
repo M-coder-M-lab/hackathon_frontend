@@ -30,7 +30,6 @@ function App() {
   const [summary, setSummary] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // フォーム切り替えと入力状態
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -89,7 +88,7 @@ function App() {
   };
 
   const fetchPosts = async () => {
-    setIsLoading(true); // 読み込み開始
+    setIsLoading(true);
     try {
       const res = await fetch(`${API_BASE}/posts`);
       if (!res.ok) throw new Error('投稿取得エラー');
@@ -99,7 +98,7 @@ function App() {
       console.error('投稿取得失敗:', err);
       setPosts([]);
     } finally {
-      setIsLoading(false); // 読み込み終了
+      setIsLoading(false);
     }
   };
 
@@ -113,7 +112,7 @@ function App() {
       await fetchPosts();
     } catch (err) {
       console.error('いいねエラー:', err);
-      alert('いいねに失敗しました');//new!!
+      alert('いいねに失敗しました');
     }
   };
 
@@ -130,7 +129,7 @@ function App() {
       await fetchPosts();
     } catch (error) {
       console.error('投稿エラー:', error);
-      alert('投稿に失敗しました');//new!!
+      alert('投稿に失敗しました');
     }
   };
 
@@ -140,7 +139,7 @@ function App() {
       alert('リプライ内容を入力してください');
       return;
     }
-  
+
     try {
       await fetch(`${API_BASE}/replies`, {
         method: 'POST',
@@ -161,7 +160,7 @@ function App() {
       setSummary((prev) => ({ ...prev, [postId]: 'リプライがありません。' }));
       return;
     }
-  
+
     try {
       const res = await fetch(`${API_BASE}/summary/${postId}`);
       if (!res.ok) throw new Error('要約取得失敗');
@@ -216,8 +215,7 @@ function App() {
         <button onClick={handlePost}>投稿</button>
       </div>
 
-
-        <div>
+      <div>
         {isLoading ? (
           <p>POST取得中...</p>
         ) : (
@@ -234,16 +232,21 @@ function App() {
               </div>
               <textarea
                 value={replyContent[post.id] || ''}
-                onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
+                onChange={(e) =>
+                  setReplyContent({ ...replyContent, [post.id]: e.target.value })
+                }
                 placeholder="リプライ..."
               />
               <button onClick={() => handleReply(post.id)}>リプライ送信</button>
               <button onClick={() => handleSummary(post.id)}>要約取得</button>
-              {summary[post.id] && <p className="summary"><strong>要約:</strong> {summary[post.id]}</p>}
+              {summary[post.id] && (
+                <p className="summary"><strong>要約:</strong> {summary[post.id]}</p>
+              )}
             </div>
           ))
         )}
       </div>
+    </div>
   );
 }
 
