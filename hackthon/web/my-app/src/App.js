@@ -28,6 +28,7 @@ function App() {
   const [postContent, setPostContent] = useState('');
   const [replyContent, setReplyContent] = useState({});
   const [summary, setSummary] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   // フォーム切り替えと入力状態
   const [isRegistering, setIsRegistering] = useState(false);
@@ -88,6 +89,7 @@ function App() {
   };
 
   const fetchPosts = async () => {
+    setIsLoading(true); // 読み込み開始
     try {
       const res = await fetch(`${API_BASE}/posts`);
       if (!res.ok) throw new Error('投稿取得エラー');
@@ -96,6 +98,8 @@ function App() {
     } catch (err) {
       console.error('投稿取得失敗:', err);
       setPosts([]);
+    } finally {
+      setIsLoading(false); // 読み込み終了
     }
   };
 
@@ -130,15 +134,6 @@ function App() {
     }
   };
 
-  // const handleReply = async (postId) => {
-  //   await fetch(`${API_BASE}/replies`, {
-  //     method: 'POST',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify({ uid: user.uid, post_id: postId, content: replyContent[postId] }),
-  //   });
-  //   setReplyContent((prev) => ({ ...prev, [postId]: '' }));
-  //   fetchPosts();
-  // };
   const handleReply = async (postId) => {
     const content = (replyContent[postId] || '').trim();
     if (!content) {
@@ -160,17 +155,6 @@ function App() {
     }
   };
 
-  // const handleSummary = async (postId) => {
-  //   try {
-  //     const res = await fetch(`${API_BASE}/summary/${postId}`);
-  //     if (!res.ok) throw new Error('要約取得失敗');//new
-  //     const data = await res.json();
-  //     setSummary((prev) => ({ ...prev, [postId]: data.summary }));
-  //   } catch (error) {
-  //     console.error('要約取得エラー:', error);
-  //     alert('要約取得に失敗しました');
-  //   }
-  // };
   const handleSummary = async (postId) => {
     const post = posts.find((p) => p.id === postId);
     if (!post || !post.replies || post.replies.length === 0) {
@@ -232,30 +216,57 @@ function App() {
         <button onClick={handlePost}>投稿</button>
       </div>
 
-      <div>
-        {(posts || []).map((post) => (
-          <div key={post.id} className="post-card">
-            <p>{post.content}</p>
-            <p>いいね: {post.likes}</p>
-            <button onClick={() => handleLike(post.id)}>いいね</button>
-            <div>
-              <strong>リプライ:</strong>
-              {(post.replies || []).map((reply) => (
-                <p key={reply.id} className="reply">- {reply.content}</p>
-              ))}
+    //   <div>
+    //     {(posts || []).map((post) => (
+    //       <div key={post.id} className="post-card">
+    //         <p>{post.content}</p>
+    //         <p>いいね: {post.likes}</p>
+    //         <button onClick={() => handleLike(post.id)}>いいね</button>
+    //         <div>
+    //           <strong>リプライ:</strong>
+    //           {(post.replies || []).map((reply) => (
+    //             <p key={reply.id} className="reply">- {reply.content}</p>
+    //           ))}
+    //         </div>
+    //         <textarea
+    //           value={replyContent[post.id] || ''}
+    //           onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
+    //           placeholder="リプライ..."
+    //         />
+    //         <button onClick={() => handleReply(post.id)}>リプライ送信</button>
+    //         <button onClick={() => handleSummary(post.id)}>要約取得</button>
+    //         {summary[post.id] && <p className="summary"><strong>要約:</strong> {summary[post.id]}</p>}
+    //       </div>
+    //     ))}
+    //   </div>
+    // </div>
+        <div>
+        {isLoading ? (
+          <p>POST取得中...</p>
+        ) : (
+          (posts || []).map((post) => (
+            <div key={post.id} className="post-card">
+              <p>{post.content}</p>
+              <p>いいね: {post.likes}</p>
+              <button onClick={() => handleLike(post.id)}>いいね</button>
+              <div>
+                <strong>リプライ:</strong>
+                {(post.replies || []).map((reply) => (
+                  <p key={reply.id} className="reply">- {reply.content}</p>
+                ))}
+              </div>
+              <textarea
+                value={replyContent[post.id] || ''}
+                onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
+                placeholder="リプライ..."
+              />
+              <button onClick={() => handleReply(post.id)}>リプライ送信</button>
+              <button onClick={() => handleSummary(post.id)}>要約取得</button>
+              {summary[post.id] && <p className="summary"><strong>要約:</strong> {summary[post.id]}</p>}
             </div>
-            <textarea
-              value={replyContent[post.id] || ''}
-              onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
-              placeholder="リプライ..."
-            />
-            <button onClick={() => handleReply(post.id)}>リプライ送信</button>
-            <button onClick={() => handleSummary(post.id)}>要約取得</button>
-            {summary[post.id] && <p className="summary"><strong>要約:</strong> {summary[post.id]}</p>}
-          </div>
-        ))}
+          ))
+        )}
       </div>
-    </div>
   );
 }
 
