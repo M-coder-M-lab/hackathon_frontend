@@ -216,30 +216,7 @@ function App() {
         <button onClick={handlePost}>投稿</button>
       </div>
 
-    //   <div>
-    //     {(posts || []).map((post) => (
-    //       <div key={post.id} className="post-card">
-    //         <p>{post.content}</p>
-    //         <p>いいね: {post.likes}</p>
-    //         <button onClick={() => handleLike(post.id)}>いいね</button>
-    //         <div>
-    //           <strong>リプライ:</strong>
-    //           {(post.replies || []).map((reply) => (
-    //             <p key={reply.id} className="reply">- {reply.content}</p>
-    //           ))}
-    //         </div>
-    //         <textarea
-    //           value={replyContent[post.id] || ''}
-    //           onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
-    //           placeholder="リプライ..."
-    //         />
-    //         <button onClick={() => handleReply(post.id)}>リプライ送信</button>
-    //         <button onClick={() => handleSummary(post.id)}>要約取得</button>
-    //         {summary[post.id] && <p className="summary"><strong>要約:</strong> {summary[post.id]}</p>}
-    //       </div>
-    //     ))}
-    //   </div>
-    // </div>
+
         <div>
         {isLoading ? (
           <p>POST取得中...</p>
