@@ -1,8 +1,12 @@
 // import React, { useEffect, useState } from 'react';
 // import './App.css';
-// import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword , signOut } from 'firebase/auth';
+// import {
+//   getAuth,
+//   signInWithEmailAndPassword,
+//   createUserWithEmailAndPassword,
+//   signOut,
+// } from 'firebase/auth';
 // import { initializeApp } from 'firebase/app';
-// // 追加でインポート
 
 // const firebaseConfig = {
 //   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -25,15 +29,17 @@
 //   const [postContent, setPostContent] = useState('');
 //   const [replyContent, setReplyContent] = useState({});
 //   const [summary, setSummary] = useState({});
+//   const [registerEmail, setRegisterEmail] = useState('');
+//   const [registerPassword, setRegisterPassword] = useState('');
+//   const [errorMessage, setErrorMessage] = useState('');
 
-//   // ログアウト関数をAppコンポーネント内へ移動
 //   const handleLogout = async () => {
 //     try {
 //       await signOut(auth);
 //       setUser(null);
 //       localStorage.removeItem('user');
 //     } catch (error) {
-//       console.error("ログアウト失敗:", error);
+//       console.error('ログアウト失敗:', error);
 //     }
 //   };
 
@@ -56,7 +62,7 @@
 //       const res = await fetch(`${API_BASE}/login`, {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ uid, email, username })
+//         body: JSON.stringify({ uid, email, username }),
 //       });
 //       const data = await res.json();
 //       const newUser = { id: data.user_id, uid, email, username };
@@ -69,90 +75,96 @@
 //     }
 //   };
 
-//   const handleRegister = async () => {
-//     const email = prompt('登録するメールアドレスを入力');
-//     const password = prompt('登録するパスワードを入力');
+//   const handleRegisterDirect = async (e) => {
+//     e.preventDefault();
+//     setErrorMessage('');
+
+//     if (registerPassword.length < 6) {
+//       setErrorMessage('パスワードは6文字以上で入力してください。');
+//       return;
+//     }
+
 //     try {
-//       const result = await createUserWithEmailAndPassword(auth, email, password);
+//       const result = await createUserWithEmailAndPassword(
+//         auth,
+//         registerEmail,
+//         registerPassword
+//       );
 //       const { uid } = result.user;
-//       const username = email;
+//       const username = registerEmail;
 
 //       const res = await fetch(`${API_BASE}/login`, {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ uid, email, username })
+//         body: JSON.stringify({ uid, email: registerEmail, username }),
 //       });
 //       const data = await res.json();
-//       const newUser = { id: data.user_id, uid, email, username };
+//       const newUser = { id: data.user_id, uid, email: registerEmail, username };
 //       setUser(newUser);
 //       localStorage.setItem('user', JSON.stringify(newUser));
 //       fetchPosts();
 //     } catch (error) {
 //       console.error('ユーザー登録失敗:', error);
-//       alert('ユーザー登録に失敗しました。');
+//       setErrorMessage('登録に失敗しました。メールアドレスの形式などを確認してください。');
 //     }
 //   };
 
 //   const fetchPosts = async () => {
-//   try {
-//     const res = await fetch(`${API_BASE}/posts`);
-//     if (!res.ok) throw new Error('投稿取得エラー');
-//     const data = await res.json();
-//     setPosts(data);
-//   } catch (err) {
-//     console.error('投稿取得失敗:', err);
-//     setPosts([]); // fallback（またはそのままにする）
-//   }
-// };
+//     try {
+//       const res = await fetch(`${API_BASE}/posts`);
+//       if (!res.ok) throw new Error('投稿取得エラー');
+//       const data = await res.json();
+//       setPosts(data);
+//     } catch (err) {
+//       console.error('投稿取得失敗:', err);
+//       setPosts([]);
+//     }
+//   };
 
-// const handleLike = async (postId) => {
-//   try {
-//     const res = await fetch(`${API_BASE}/likes`, {
+//   const handleLike = async (postId) => {
+//     try {
+//       const res = await fetch(`${API_BASE}/likes`, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ uid: user.uid, post_id: postId }),
+//       });
+//       if (!res.ok) throw new Error('いいねに失敗しました');
+//       await fetchPosts();
+//     } catch (err) {
+//       console.error('いいねエラー:', err);
+//       alert('いいねに失敗しました');
+//     }
+//   };
+
+//   const handlePost = async () => {
+//     if (!postContent.trim()) return;
+
+//     try {
+//       const res = await fetch(`${API_BASE}/posts`, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ uid: user.uid, content: postContent }),
+//       });
+
+//       if (!res.ok) throw new Error('投稿に失敗しました');
+
+//       setPostContent('');
+//       await fetchPosts();
+//     } catch (error) {
+//       console.error('投稿エラー:', error);
+//       alert('投稿に失敗しました');
+//     }
+//   };
+
+//   const handleReply = async (postId) => {
+//     await fetch(`${API_BASE}/replies`, {
 //       method: 'POST',
 //       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ uid: user.uid, post_id: postId })
+//       body: JSON.stringify({ uid: user.uid, post_id: postId, content: replyContent[postId] }),
 //     });
-//     if (!res.ok) throw new Error('いいねに失敗しました');
-//     await fetchPosts(); // いいね後に投稿一覧を更新
-//   } catch (err) {
-//     console.error('いいねエラー:', err);
-//     alert('いいねに失敗しました');
-//   }
-// };
-
-
-// const handlePost = async () => {
-//   if (!postContent.trim()) return;
-
-//   try {
-//     const res = await fetch(`${API_BASE}/posts`, {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ uid: user.uid, content: postContent })
-//     });
-
-//     if (!res.ok) throw new Error('投稿に失敗しました');
-
-//     setPostContent('');
-//     await fetchPosts(); // ← 忘れず「await」する
-//   } catch (error) {
-//     console.error('投稿エラー:', error);
-//     alert('投稿に失敗しました');
-//   }
-// };
-
-
-
-// const handleReply = async (postId) => {
-//   await fetch(`${API_BASE}/replies`, {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ uid: user.uid, post_id: postId, content: replyContent[postId] })
-//   });
-//   setReplyContent((prev) => ({ ...prev, [postId]: '' }));
-//   fetchPosts();
-// };
-
+//     setReplyContent((prev) => ({ ...prev, [postId]: '' }));
+//     fetchPosts();
+//   };
 
 //   const handleSummary = async (postId) => {
 //     const res = await fetch(`${API_BASE}/summary/${postId}`);
@@ -160,13 +172,33 @@
 //     setSummary((prev) => ({ ...prev, [postId]: data.summary }));
 //   };
 
-//   if (!user) return (
-//     <div>
-//       <h2>ログイン / 新規登録</h2>
-//       <button onClick={handleLogin}>ログイン</button>
-//       <button onClick={handleRegister}>新規登録</button>
-//     </div>
-//   );
+//   if (!user) {
+//     return (
+//       <div className="App">
+//         <h2>ログイン または 新規登録</h2>
+//         <form onSubmit={handleRegisterDirect}>
+//           <p>※ パスワードは6文字以上で入力してください</p>
+//           <input
+//             type="email"
+//             placeholder="メールアドレス"
+//             value={registerEmail}
+//             onChange={(e) => setRegisterEmail(e.target.value)}
+//             required
+//           /><br />
+//           <input
+//             type="password"
+//             placeholder="パスワード（6文字以上）"
+//             value={registerPassword}
+//             onChange={(e) => setRegisterPassword(e.target.value)}
+//             required
+//           /><br />
+//           <button type="submit">新規登録</button>
+//         </form>
+//         <button onClick={handleLogin}>ログイン</button>
+//         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+//       </div>
+//     );
+//   }
 
 //   return (
 //     <div className="App">
@@ -181,32 +213,32 @@
 //         <button onClick={handlePost}>投稿</button>
 //       </div>
 
-//        <div>
-//          {(posts || []).map((post) => (
-//            <div key={post.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
-//              <p>{post.content}</p>
-//              <p>いいね: {post.likes}</p>
-//              <button onClick={() => handleLike(post.id)}>いいね</button> 
-//              <div> 
-//                <strong>リプライ:</strong>
-//                {(post.replies || []).map((reply) => (
-//                <p key={reply.id} style={{ marginLeft: '1em' }}>- {reply.content}</p>
-//                ))}
-//              </div> 
-//              <textarea
-//                value={replyContent[post.id] || ''}
-//                onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
-//                placeholder="リプライ..."
-//              ></textarea>
-//              <button onClick={() => handleReply(post.id)}>リプライ送信</button>
-//              <button onClick={() => handleSummary(post.id)}>要約取得</button>
-//              {summary[post.id] && <p><strong>要約:</strong> {summary[post.id]}</p>}
-//            </div>
-//          ))}
-//        </div>
-//      </div>
-//    );
-//  }
+//       <div>
+//         {(posts || []).map((post) => (
+//           <div key={post.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
+//             <p>{post.content}</p>
+//             <p>いいね: {post.likes}</p>
+//             <button onClick={() => handleLike(post.id)}>いいね</button>
+//             <div>
+//               <strong>リプライ:</strong>
+//               {(post.replies || []).map((reply) => (
+//                 <p key={reply.id} style={{ marginLeft: '1em' }}>- {reply.content}</p>
+//               ))}
+//             </div>
+//             <textarea
+//               value={replyContent[post.id] || ''}
+//               onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
+//               placeholder="リプライ..."
+//             ></textarea>
+//             <button onClick={() => handleReply(post.id)}>リプライ送信</button>
+//             <button onClick={() => handleSummary(post.id)}>要約取得</button>
+//             {summary[post.id] && <p><strong>要約:</strong> {summary[post.id]}</p>}
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
 
 // export default App;
 
@@ -232,7 +264,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
 const API_BASE = process.env.REACT_APP_API_BASE;
 
 function App() {
@@ -241,8 +272,11 @@ function App() {
   const [postContent, setPostContent] = useState('');
   const [replyContent, setReplyContent] = useState({});
   const [summary, setSummary] = useState({});
-  const [registerEmail, setRegisterEmail] = useState('');
-  const [registerPassword, setRegisterPassword] = useState('');
+
+  // フォーム切り替えと入力状態
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleLogout = async () => {
@@ -263,13 +297,23 @@ function App() {
     }
   }, []);
 
-  const handleLogin = async () => {
-    const email = prompt('メールアドレスを入力');
-    const password = prompt('パスワードを入力');
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+
+    if (isRegistering && password.length < 6) {
+      setErrorMessage('パスワードは6文字以上で入力してください。');
+      return;
+    }
+
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      const { uid, displayName } = result.user;
-      const username = displayName || email;
+      const authFunc = isRegistering
+        ? createUserWithEmailAndPassword
+        : signInWithEmailAndPassword;
+
+      const result = await authFunc(auth, email, password);
+      const { uid } = result.user;
+      const username = email;
 
       const res = await fetch(`${API_BASE}/login`, {
         method: 'POST',
@@ -282,42 +326,8 @@ function App() {
       localStorage.setItem('user', JSON.stringify(newUser));
       fetchPosts();
     } catch (error) {
-      console.error('ログイン失敗:', error);
-      alert('ログインに失敗しました。');
-    }
-  };
-
-  const handleRegisterDirect = async (e) => {
-    e.preventDefault();
-    setErrorMessage('');
-
-    if (registerPassword.length < 6) {
-      setErrorMessage('パスワードは6文字以上で入力してください。');
-      return;
-    }
-
-    try {
-      const result = await createUserWithEmailAndPassword(
-        auth,
-        registerEmail,
-        registerPassword
-      );
-      const { uid } = result.user;
-      const username = registerEmail;
-
-      const res = await fetch(`${API_BASE}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, email: registerEmail, username }),
-      });
-      const data = await res.json();
-      const newUser = { id: data.user_id, uid, email: registerEmail, username };
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      fetchPosts();
-    } catch (error) {
-      console.error('ユーザー登録失敗:', error);
-      setErrorMessage('登録に失敗しました。メールアドレスの形式などを確認してください。');
+      console.error('認証エラー:', error);
+      setErrorMessage('認証に失敗しました。メールアドレスやパスワードを確認してください。');
     }
   };
 
@@ -335,16 +345,14 @@ function App() {
 
   const handleLike = async (postId) => {
     try {
-      const res = await fetch(`${API_BASE}/likes`, {
+      await fetch(`${API_BASE}/likes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: user.uid, post_id: postId }),
       });
-      if (!res.ok) throw new Error('いいねに失敗しました');
       await fetchPosts();
     } catch (err) {
       console.error('いいねエラー:', err);
-      alert('いいねに失敗しました');
     }
   };
 
@@ -352,19 +360,15 @@ function App() {
     if (!postContent.trim()) return;
 
     try {
-      const res = await fetch(`${API_BASE}/posts`, {
+      await fetch(`${API_BASE}/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: user.uid, content: postContent }),
       });
-
-      if (!res.ok) throw new Error('投稿に失敗しました');
-
       setPostContent('');
       await fetchPosts();
     } catch (error) {
       console.error('投稿エラー:', error);
-      alert('投稿に失敗しました');
     }
   };
 
@@ -387,26 +391,28 @@ function App() {
   if (!user) {
     return (
       <div className="App">
-        <h2>ログイン または 新規登録</h2>
-        <form onSubmit={handleRegisterDirect}>
-          <p>※ パスワードは6文字以上で入力してください</p>
+        <h2>{isRegistering ? '新規登録' : 'ログイン'}</h2>
+        <form onSubmit={handleAuth}>
+          {isRegistering && <p>※ パスワードは6文字以上が必要です</p>}
           <input
             type="email"
             placeholder="メールアドレス"
-            value={registerEmail}
-            onChange={(e) => setRegisterEmail(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           /><br />
           <input
             type="password"
-            placeholder="パスワード（6文字以上）"
-            value={registerPassword}
-            onChange={(e) => setRegisterPassword(e.target.value)}
+            placeholder="パスワード"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           /><br />
-          <button type="submit">新規登録</button>
+          <button type="submit">{isRegistering ? '登録' : 'ログイン'}</button>
         </form>
-        <button onClick={handleLogin}>ログイン</button>
+        <button onClick={() => setIsRegistering(!isRegistering)}>
+          {isRegistering ? 'ログイン画面へ' : '新規登録画面へ'}
+        </button>
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       </div>
     );
