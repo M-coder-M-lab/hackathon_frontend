@@ -130,20 +130,57 @@ function App() {
     }
   };
 
+  // const handleReply = async (postId) => {
+  //   await fetch(`${API_BASE}/replies`, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({ uid: user.uid, post_id: postId, content: replyContent[postId] }),
+  //   });
+  //   setReplyContent((prev) => ({ ...prev, [postId]: '' }));
+  //   fetchPosts();
+  // };
   const handleReply = async (postId) => {
-    await fetch(`${API_BASE}/replies`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: user.uid, post_id: postId, content: replyContent[postId] }),
-    });
-    setReplyContent((prev) => ({ ...prev, [postId]: '' }));
-    fetchPosts();
+    const content = (replyContent[postId] || '').trim();
+    if (!content) {
+      alert('リプライ内容を入力してください');
+      return;
+    }
+  
+    try {
+      await fetch(`${API_BASE}/replies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: user.uid, post_id: postId, content }),
+      });
+      setReplyContent((prev) => ({ ...prev, [postId]: '' }));
+      await fetchPosts();
+    } catch (error) {
+      console.error('リプライ送信エラー:', error);
+      alert('リプライ送信に失敗しました');
+    }
   };
 
+  // const handleSummary = async (postId) => {
+  //   try {
+  //     const res = await fetch(`${API_BASE}/summary/${postId}`);
+  //     if (!res.ok) throw new Error('要約取得失敗');//new
+  //     const data = await res.json();
+  //     setSummary((prev) => ({ ...prev, [postId]: data.summary }));
+  //   } catch (error) {
+  //     console.error('要約取得エラー:', error);
+  //     alert('要約取得に失敗しました');
+  //   }
+  // };
   const handleSummary = async (postId) => {
+    const post = posts.find((p) => p.id === postId);
+    if (!post || !post.replies || post.replies.length === 0) {
+      setSummary((prev) => ({ ...prev, [postId]: 'リプライがありません。' }));
+      return;
+    }
+  
     try {
       const res = await fetch(`${API_BASE}/summary/${postId}`);
-      if (!res.ok) throw new Error('要約取得失敗');//new
+      if (!res.ok) throw new Error('要約取得失敗');
       const data = await res.json();
       setSummary((prev) => ({ ...prev, [postId]: data.summary }));
     } catch (error) {
