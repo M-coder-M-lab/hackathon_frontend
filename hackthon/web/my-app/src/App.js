@@ -124,7 +124,7 @@ function App() {
     const content = (replyContent[postId] || '').trim();
     if (!content) return;
     await fetch(`${API_BASE}/replies`, {
-      method: ' 'POST',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ uid: user.uid, post_id: postId, content }),
     });
