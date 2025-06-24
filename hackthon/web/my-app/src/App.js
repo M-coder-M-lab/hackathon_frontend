@@ -1,6 +1,24 @@
+// MUIバージョンに変換したApp.js
 import React, { useEffect, useState } from 'react';
-import './App.css';
-import { TextField, Button, Avatar, AppBar, Toolbar, Typography, Container, Card, CardContent, Box } from '@mui/material';
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Card,
+  CardContent,
+  CardActions,
+  Box,
+  CircularProgress,
+  Divider,
+  AppBar,
+  Toolbar,
+  IconButton,
+} from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import SendIcon from '@mui/icons-material/Send';
+import SummarizeIcon from '@mui/icons-material/Summarize';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
 
@@ -25,37 +43,27 @@ function App() {
   const [replyContent, setReplyContent] = useState({});
   const [summary, setSummary] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [name, setName] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser) {
       setUser(storedUser);
       fetchPosts();
-      fetchProfile(storedUser.uid);
     }
   }, []);
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    setUser(null);
-    localStorage.removeItem('user');
-  };
 
   const handleAuth = async (e) => {
     e.preventDefault();
     setErrorMessage('');
-
     if (isRegistering && password.length < 6) {
-      setErrorMessage('パスワードは6文字以上で入力してください');
+      setErrorMessage('パスワードは6文字以上で入力してください。');
       return;
     }
-
     try {
       const authFunc = isRegistering ? createUserWithEmailAndPassword : signInWithEmailAndPassword;
       const result = await authFunc(auth, email, password);
@@ -71,44 +79,44 @@ function App() {
       setUser(newUser);
       localStorage.setItem('user', JSON.stringify(newUser));
       fetchPosts();
-    } catch {
-      setErrorMessage('認証に失敗しました');
+    } catch (error) {
+      console.error('認証エラー:', error);
+      setErrorMessage('認証に失敗しました。');
     }
   };
 
   const fetchPosts = async () => {
     setIsLoading(true);
-    const res = await fetch(`${API_BASE}/posts`);
-    const data = await res.json();
-    setPosts(data);
-    setIsLoading(false);
-  };
-
-  const fetchProfile = async (uid) => {
-    const res = await fetch(`${API_BASE}/profile?uid=${uid}`);
-    const data = await res.json();
-    setName(data.username);
-    setImageUrl(data.profile_image_url || '');
-  };
-
-  const handleProfileUpdate = async () => {
-    await fetch(`${API_BASE}/profile`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: user.uid, name, image_url: imageUrl }),
-    });
-    alert('プロフィール更新完了');
+    try {
+      const res = await fetch(`${API_BASE}/posts`);
+      const data = await res.json();
+      setPosts(data);
+    } catch (err) {
+      setPosts([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePost = async () => {
     if (!postContent.trim()) return;
-    await fetch(`${API_BASE}/posts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: user.uid, content: postContent }),
-    });
-    setPostContent('');
-    fetchPosts();
+    try {
+      await fetch(`${API_BASE}/posts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: user.uid, content: postContent }),
+      });
+      setPostContent('');
+      fetchPosts();
+    } catch (e) {
+      alert('投稿失敗');
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setUser(null);
+    localStorage.removeItem('user');
   };
 
   const handleLike = async (postId) => {
@@ -128,26 +136,32 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ uid: user.uid, post_id: postId, content }),
     });
-    setReplyContent(prev => ({ ...prev, [postId]: '' }));
+    setReplyContent((prev) => ({ ...prev, [postId]: '' }));
     fetchPosts();
   };
 
   const handleSummary = async (postId) => {
+    const post = posts.find((p) => p.id === postId);
+    if (!post?.replies?.length) {
+      setSummary((prev) => ({ ...prev, [postId]: 'リプライがありません。' }));
+      return;
+    }
     const res = await fetch(`${API_BASE}/summary/${postId}`);
     const data = await res.json();
-    setSummary(prev => ({ ...prev, [postId]: data.summary }));
+    setSummary((prev) => ({ ...prev, [postId]: data.summary }));
   };
 
   if (!user) {
     return (
-      <Container maxWidth="sm">
-        <Typography variant="h5">{isRegistering ? '新規登録' : 'ログイン'}</Typography>
-        <form onSubmit={handleAuth}>
-          <TextField fullWidth label="メール" value={email} onChange={(e) => setEmail(e.target.value)} /><br />
-          <TextField fullWidth type="password" label="パスワード" value={password} onChange={(e) => setPassword(e.target.value)} /><br />
+      <Container maxWidth="xs" sx={{ mt: 5 }}>
+        <Typography variant="h5" gutterBottom>{isRegistering ? '新規登録' : 'ログイン'}</Typography>
+        <Box component="form" onSubmit={handleAuth} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {isRegistering && <Typography variant="body2">※ パスワードは6文字以上必要です</Typography>}
+          <TextField label="メールアドレス" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <TextField label="パスワード" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           <Button type="submit" variant="contained">{isRegistering ? '登録' : 'ログイン'}</Button>
-        </form>
-        <Button onClick={() => setIsRegistering(!isRegistering)}>
+        </Box>
+        <Button onClick={() => setIsRegistering(!isRegistering)} sx={{ mt: 2 }}>
           {isRegistering ? 'ログイン画面へ' : '新規登録画面へ'}
         </Button>
         {errorMessage && <Typography color="error">{errorMessage}</Typography>}
@@ -156,44 +170,55 @@ function App() {
   }
 
   return (
-    <Box>
+    <Container maxWidth="sm">
       <AppBar position="static">
         <Toolbar>
-          <Avatar src={imageUrl} />
-          <Typography variant="h6" sx={{ flexGrow: 1, marginLeft: 2 }}>{name}</Typography>
-          <Button color="inherit" onClick={handleLogout}>ログアウト</Button>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>Welcome, {user.username}</Typography>
+          <IconButton color="inherit" onClick={handleLogout}><LogoutIcon /></IconButton>
         </Toolbar>
       </AppBar>
-
-      <Container maxWidth="sm" sx={{ mt: 2 }}>
-        <Typography variant="h6">プロフィール更新</Typography>
-        <TextField fullWidth label="名前" value={name} onChange={(e) => setName(e.target.value)} /><br />
-        <TextField fullWidth label="画像URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} /><br />
-        <Button onClick={handleProfileUpdate}>更新</Button>
-
-        <TextField fullWidth label="新しい投稿" value={postContent} onChange={(e) => setPostContent(e.target.value)} multiline /><br />
-        <Button variant="contained" onClick={handlePost}>投稿</Button>
-
-        {isLoading ? <p>読み込み中...</p> : posts.map(post => (
-          <Card key={post.id} sx={{ mt: 2 }}>
+      <Box sx={{ mt: 2 }}>
+        <TextField
+          multiline
+          fullWidth
+          label="新しい投稿"
+          value={postContent}
+          onChange={(e) => setPostContent(e.target.value)}
+        />
+        <Button onClick={handlePost} variant="contained" fullWidth sx={{ mt: 1 }}>投稿</Button>
+      </Box>
+      <Divider sx={{ my: 2 }} />
+      {isLoading ? <CircularProgress /> : (
+        posts.map((post) => (
+          <Card key={post.id} sx={{ mb: 2 }}>
             <CardContent>
               <Typography>{post.content}</Typography>
-              <Typography variant="caption">いいね: {post.likes}</Typography><br />
-              <Button onClick={() => handleLike(post.id)}>いいね</Button>
-              <Box>
-                {(post.replies || []).map(reply => (
-                  <Typography key={reply.id} sx={{ ml: 2 }}>- {reply.content}</Typography>
-                ))}
+              <Typography variant="body2" color="text.secondary">いいね: {post.likes}</Typography>
+              <CardActions>
+                <Button onClick={() => handleLike(post.id)} startIcon={<FavoriteIcon />}>いいね</Button>
+              </CardActions>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2">リプライ:</Typography>
+              {(post.replies || []).map(reply => (
+                <Typography key={reply.id} variant="body2">- {reply.content}</Typography>
+              ))}
+              <TextField
+                fullWidth
+                label="リプライ"
+                value={replyContent[post.id] || ''}
+                onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
+                sx={{ mt: 1 }}
+              />
+              <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                <Button variant="outlined" onClick={() => handleReply(post.id)} startIcon={<SendIcon />}>送信</Button>
+                <Button variant="outlined" onClick={() => handleSummary(post.id)} startIcon={<SummarizeIcon />}>要約</Button>
               </Box>
-              <TextField fullWidth label="リプライ" value={replyContent[post.id] || ''} onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })} /><br />
-              <Button onClick={() => handleReply(post.id)}>送信</Button>
-              <Button onClick={() => handleSummary(post.id)}>要約</Button>
-              {summary[post.id] && <Typography variant="body2">要約: {summary[post.id]}</Typography>}
+              {summary[post.id] && <Typography sx={{ mt: 1 }}><strong>要約:</strong> {summary[post.id]}</Typography>}
             </CardContent>
           </Card>
-        ))}
-      </Container>
-    </Box>
+        ))
+      )}
+    </Container>
   );
 }
 
