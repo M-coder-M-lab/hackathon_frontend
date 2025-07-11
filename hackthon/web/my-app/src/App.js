@@ -198,9 +198,10 @@ function App() {
           <Card key={post.id} sx={{ mb: 2 }}>
             <CardContent>
               <Typography>{post.content}</Typography>
-              <Typography variant="body2" color="text.secondary">いいね: {post.likes}</Typography>
+              // <Typography variant="body2" color="text.secondary">いいね: {post.likes}</Typography>
               <CardActions>
-                <Button onClick={() => handleLike(post.id)} startIcon={<FavoriteIcon />}>いいね</Button>
+                <Button onClick={() => handleLike(post.id)} startIcon={<FavoriteIcon />}></Button>
+                <Typography variant="body2" color="text.secondary"> {post.likes}</Typography>
               </CardActions>
               <Divider sx={{ my: 1 }} />
               <Typography variant="subtitle2">リプライ:</Typography>
