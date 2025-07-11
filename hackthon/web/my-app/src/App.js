@@ -1,4 +1,3 @@
-// App.js
 import React, { useEffect, useState } from 'react';
 import {
   Container,
@@ -198,33 +197,18 @@ function App() {
           <Card key={post.id} sx={{ mb: 2 }}>
             <CardContent>
               <Typography>{post.content}</Typography>
+              <Typography variant="body2" color="text.secondary">いいね: {post.likes}</Typography>
               <CardActions>
-                <Button onClick={() => handleLike(post.id)} startIcon={<FavoriteIcon />}></Button>
-                <Typography variant="body2" color="text.secondary"> {post.likes}</Typography>
+                <Button onClick={() => handleLike(post.id)} startIcon={<FavoriteIcon />}>いいね</Button>
+                <Button onClick={() => handleToggleReplyInput(post.id)} startIcon={<SendIcon />}>リプライ</Button>
               </CardActions>
-              <Divider sx={{ my: 1 }} />
-              <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-                 <Typography variant="subtitle2">リプライ:</Typography>
-                {(post.replies || []).map(reply => (
-                  <Typography key={reply.id} variant="body2">- {reply.content}</Typography>
-                ))}
-                <Button
-                  variant="outlined"
-                  onClick={() => handleToggleReplyInput(post.id)}
-                  startIcon={<SendIcon />}
-                >
-                  リプライ
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => handleSummary(post.id)}
-                  startIcon={<SummarizeIcon />}
-                >
-                  要約
-                </Button>
-              </Box>
               {showReplyInput[post.id] && (
                 <>
+                  <Divider sx={{ my: 1 }} />
+                  <Typography variant="subtitle2">リプライ:</Typography>
+                  {(post.replies || []).map(reply => (
+                    <Typography key={reply.id} variant="body2">- {reply.content}</Typography>
+                  ))}
                   <TextField
                     fullWidth
                     label="リプライ"
@@ -240,13 +224,20 @@ function App() {
                     >
                       送信
                     </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleSummary(post.id)}
+                      startIcon={<SummarizeIcon />}
+                    >
+                      要約
+                    </Button>
                   </Box>
+                  {summary[post.id] && (
+                    <Typography sx={{ mt: 1 }}>
+                      <strong>要約:</strong> {summary[post.id]}
+                    </Typography>
+                  )}
                 </>
-              )}
-              {summary[post.id] && (
-                <Typography sx={{ mt: 1 }}>
-                  <strong>要約:</strong> {summary[post.id]}
-                </Typography>
               )}
             </CardContent>
           </Card>
@@ -257,4 +248,3 @@ function App() {
 }
 
 export default App;
-
