@@ -203,11 +203,11 @@ function App() {
                 <Typography variant="body2" color="text.secondary"> {post.likes}</Typography>
               </CardActions>
               <Divider sx={{ my: 1 }} />
-              ))}
               <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
                  <Typography variant="subtitle2">リプライ:</Typography>
                 {(post.replies || []).map(reply => (
                   <Typography key={reply.id} variant="body2">- {reply.content}</Typography>
+                ))}
                 <Button
                   variant="outlined"
                   onClick={() => handleToggleReplyInput(post.id)}
