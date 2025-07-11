@@ -1,4 +1,4 @@
-// MUIバージョンに変換したApp.js
+// App.js
 import React, { useEffect, useState } from 'react';
 import {
   Container,
@@ -42,6 +42,7 @@ function App() {
   const [postContent, setPostContent] = useState('');
   const [replyContent, setReplyContent] = useState({});
   const [summary, setSummary] = useState({});
+  const [showReplyInput, setShowReplyInput] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   const [isRegistering, setIsRegistering] = useState(false);
@@ -151,6 +152,10 @@ function App() {
     setSummary((prev) => ({ ...prev, [postId]: data.summary }));
   };
 
+  const handleToggleReplyInput = (postId) => {
+    setShowReplyInput((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
   if (!user) {
     return (
       <Container maxWidth="xs" sx={{ mt: 5 }}>
@@ -202,18 +207,47 @@ function App() {
               {(post.replies || []).map(reply => (
                 <Typography key={reply.id} variant="body2">- {reply.content}</Typography>
               ))}
-              <TextField
-                fullWidth
-                label="リプライ"
-                value={replyContent[post.id] || ''}
-                onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
-                sx={{ mt: 1 }}
-              />
-              <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-                <Button variant="outlined" onClick={() => handleReply(post.id)} startIcon={<SendIcon />}>送信</Button>
-                <Button variant="outlined" onClick={() => handleSummary(post.id)} startIcon={<SummarizeIcon />}>要約</Button>
+              <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleToggleReplyInput(post.id)}
+                  startIcon={<SendIcon />}
+                >
+                  リプライ
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleSummary(post.id)}
+                  startIcon={<SummarizeIcon />}
+                >
+                  要約
+                </Button>
               </Box>
-              {summary[post.id] && <Typography sx={{ mt: 1 }}><strong>要約:</strong> {summary[post.id]}</Typography>}
+              {showReplyInput[post.id] && (
+                <>
+                  <TextField
+                    fullWidth
+                    label="リプライ"
+                    value={replyContent[post.id] || ''}
+                    onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
+                    sx={{ mt: 1 }}
+                  />
+                  <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleReply(post.id)}
+                      startIcon={<SendIcon />}
+                    >
+                      送信
+                    </Button>
+                  </Box>
+                </>
+              )}
+              {summary[post.id] && (
+                <Typography sx={{ mt: 1 }}>
+                  <strong>要約:</strong> {summary[post.id]}
+                </Typography>
+              )}
             </CardContent>
           </Card>
         ))
@@ -223,3 +257,4 @@ function App() {
 }
 
 export default App;
+
